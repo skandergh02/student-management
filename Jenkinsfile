@@ -1,8 +1,9 @@
 pipeline {
-  agent { label 'Agent-Linux' } // Ton agent WSL
+  // Utilise ton agent Ubuntu sur WSL
+  agent { label 'Agent-Linux' }
 
   tools {
-    // On change 'M3' par 'maven' pour correspondre à ta config Jenkins
+    // On utilise 'maven' en minuscules comme suggéré par ton erreur
     maven 'maven'
   }
 
@@ -14,19 +15,21 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
+        // Récupération du code source depuis GitHub
         checkout scm
       }
     }
 
     stage('Clean') {
       steps {
+        // Suppression du contenu du dossier target
         sh 'mvn clean'
       }
     }
 
     stage('Compile & Package') {
       steps {
-        // C'est l'étape de création du livrable demandée
+        // Compilation et création du livrable (.jar)
         sh 'mvn package -DskipTests'
       }
     }
@@ -34,6 +37,7 @@ pipeline {
 
   post {
     always {
+      // Nettoyage de l'espace de travail sur l'agent
       cleanWs()
     }
   }
