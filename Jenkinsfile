@@ -1,10 +1,9 @@
 pipeline {
-  // Utilise ton agent WSL
-  agent { label 'Agent-Linux' }
+  agent { label 'Agent-Linux' } // Ton agent WSL
 
-  // Utilise le nom du Maven que tu as configuré (ex: 'M3')
   tools {
-    maven 'M3'
+    // On change 'M3' par 'maven' pour correspondre à ta config Jenkins
+    maven 'maven'
   }
 
   options {
@@ -27,7 +26,7 @@ pipeline {
 
     stage('Compile & Package') {
       steps {
-        // Cette étape génère le fichier .jar final
+        // C'est l'étape de création du livrable demandée
         sh 'mvn package -DskipTests'
       }
     }
