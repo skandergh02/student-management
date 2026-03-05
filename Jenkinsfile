@@ -4,7 +4,7 @@ pipeline {
 
   // Utilise le nom du Maven que tu as configuré (ex: 'M3')
   tools {
-    maven 'MAVEN'
+    maven 'M3'
   }
 
   options {
