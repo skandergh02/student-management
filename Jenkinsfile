@@ -38,7 +38,7 @@ pipeline {
   post {
     always {
       // Nettoyage de l'espace de travail sur l'agent
-      //cleanWs()
+      cleanWs()
     }
   }
 }
