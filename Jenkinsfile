@@ -1,9 +1,7 @@
 pipeline {
-  // Utilise ton agent Ubuntu sur WSL
   agent { label 'Agent-Linux' }
 
   tools {
-    // On utilise 'maven' en minuscules comme suggéré par ton erreur
     maven 'maven'
   }
 
@@ -15,29 +13,50 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // Récupération du code source depuis GitHub
         checkout scm
       }
     }
 
     stage('Clean') {
       steps {
-        // Suppression du contenu du dossier target
         sh 'mvn clean'
       }
     }
 
     stage('Compile & Package') {
       steps {
-        // Compilation et création du livrable (.jar)
         sh 'mvn package -DskipTests'
+      }
+    }
+
+    // ÉTAPE AJOUTÉE : Création de l'image Docker
+    stage('Docker Build') {
+      steps {
+        script {
+          // On utilise ton nom d'utilisateur skanderghannem
+          sh 'docker build -t skanderghannem/student-management:1.0 .'
+        }
+      }
+    }
+
+    // ÉTAPE AJOUTÉE : Push vers DockerHub
+    stage('Docker Push') {
+      steps {
+        // 'docker-hub-creds' est l'ID que tu dois créer dans Jenkins
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds',
+                         passwordVariable: 'DOCKER_PASSWORD',
+                         usernameVariable: 'DOCKER_USER')]) {
+          sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USER --password-stdin"
+          sh 'docker push skanderghannem/student-management:1.0'
+        }
       }
     }
   }
 
   post {
     always {
-      // Nettoyage de l'espace de travail sur l'agent
+      // On déconnecte Docker par sécurité
+      sh 'docker logout'
       cleanWs()
     }
   }
