@@ -29,20 +29,27 @@ pipeline {
       }
     }
 
-    // ÉTAPE AJOUTÉE : Création de l'image Docker
+    // NOUVELLE ÉTAPE : Analyse de la qualité du code
+    stage('SonarQube Analysis') {
+      steps {
+        // Utilisation du token 'sonar-token' créé dans Jenkins
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+          // Commande Maven pour envoyer le rapport au serveur SonarQube
+          sh "mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN} -Dsonar.host.url=http://localhost:9000"
+        }
+      }
+    }
+
     stage('Docker Build') {
       steps {
         script {
-          // On utilise ton nom d'utilisateur skanderghannem
           sh 'docker build -t skanderghannem/student-management:1.0 .'
         }
       }
     }
 
-    // ÉTAPE AJOUTÉE : Push vers DockerHub
     stage('Docker Push') {
       steps {
-        // 'docker-hub-creds' est l'ID que tu dois créer dans Jenkins
         withCredentials([usernamePassword(credentialsId: 'docker-hub-creds',
                          passwordVariable: 'DOCKER_PASSWORD',
                          usernameVariable: 'DOCKER_USER')]) {
@@ -55,7 +62,6 @@ pipeline {
 
   post {
     always {
-      // On déconnecte Docker par sécurité
       sh 'docker logout'
       cleanWs()
     }
